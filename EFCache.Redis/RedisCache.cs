@@ -118,7 +118,7 @@ namespace EFCache.Redis
 
         private static bool EntryExpired(CacheEntry entry, DateTimeOffset now) => entry.AbsoluteExpiration < now || (now - entry.LastAccess) > entry.SlidingExpiration;
 
-        public void PutItem(string key, object value, IEnumerable<string> dependentEntitySets, TimeSpan slidingExpiration, DateTimeOffset absoluteExpiration)
+        public void PutItem(string key, object value, IEnumerable<string> dependentEntitySets, TimeSpan slidingExpiration, DateTimeOffset absoluteExpiration, DbInfo dbInfo)
         {
             key.GuardAgainstNullOrEmpty(nameof(key));
             // ReSharper disable once PossibleMultipleEnumeration - the guard clause should not enumerate, its just checking the reference is not null
@@ -148,7 +148,10 @@ namespace EFCache.Redis
             }
         }
 
-        private RedisKey AddCacheQualifier(string entitySet) => string.Concat(_cacheIdentifier, ".", entitySet);
+        private RedisKey AddCacheQualifier(string entitySet)
+        {
+            return string.Concat(_cacheIdentifier, ".", entitySet);
+        }
 
         private static string HashKey(string key)
         {
