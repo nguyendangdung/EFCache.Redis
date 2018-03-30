@@ -103,12 +103,6 @@
     <Compile Include="RedisCacheLazyTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EFCache.Redis\EFCache.Redis.csproj">
-      <Project>{eaadfba4-dc52-4cef-ac76-309b50b3a05e}</Project>
-      <Name>EFCache.Redis</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -116,6 +110,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\redis-server.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EFCache.Redis\EFCache.Redis.csproj">
+      <Project>{e9379134-a7d8-4f64-acef-9cd625174e98}</Project>
+      <Name>EFCache.Redis</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

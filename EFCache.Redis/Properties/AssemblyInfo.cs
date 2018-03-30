@@ -5,16 +5,14 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-
 [assembly: AssemblyTitle("EFCache.Redis")]
-[assembly: AssemblyDescription("Provides a Redis implementation of EFCache")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("EFCache.Redis")]
-[assembly: AssemblyCopyright("Copyright ©  3018")]
-[assembly: AssemblyTrademark("Ian Robertson")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-//[assembly: log4net.Config.XmlConfigurator(Watch = true)]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -22,15 +20,14 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("fbd27401-e8fa-4f19-97d3-ff8f8002ef72")]
+[assembly: Guid("6e38d708-05de-4946-ab8d-71ea30099491")]
 
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
-//      Minor Version
+//      Minor Version 
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3018.3.30.1")]
-[assembly: AssemblyFileVersion("3018.3.30.1")]
-
+[assembly: AssemblyVersion("3018.0.0.1")]
+[assembly: AssemblyFileVersion("3018.0.0.1")]
