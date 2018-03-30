@@ -67,7 +67,7 @@ namespace EFCache.Redis
             handler(this, redisCacheException);
         }
 
-        public bool GetItem(string key, out object value, DbConnection cn)
+        public bool GetItem(string key, out object value, DbInfo db)
         {
             key.GuardAgainstNullOrEmpty(nameof(key));
             _database = _redis.GetDatabase(); //connect only if arguments are valid to optimize resources 
@@ -91,7 +91,7 @@ namespace EFCache.Redis
 
             if (EntryExpired(entry, now))
             {
-                InvalidateItem(key, cn);
+                InvalidateItem(key, db);
                 value = null;
             }
             else
@@ -119,7 +119,7 @@ namespace EFCache.Redis
 
         private static bool EntryExpired(CacheEntry entry, DateTimeOffset now) => entry.AbsoluteExpiration < now || (now - entry.LastAccess) > entry.SlidingExpiration;
 
-        public void PutItem(string key, object value, IEnumerable<string> dependentEntitySets, TimeSpan slidingExpiration, DateTimeOffset absoluteExpiration, DbConnection cn)
+        public void PutItem(string key, object value, IEnumerable<string> dependentEntitySets, TimeSpan slidingExpiration, DateTimeOffset absoluteExpiration, DbInfo db)
         {
             key.GuardAgainstNullOrEmpty(nameof(key));
             // ReSharper disable once PossibleMultipleEnumeration - the guard clause should not enumerate, its just checking the reference is not null
@@ -137,7 +137,7 @@ namespace EFCache.Redis
                 {
                     foreach (var entitySet in entitySets)
                     {
-                        _database.SetAdd(AddCacheQualifier(entitySet, cn), key, CommandFlags.FireAndForget);
+                        _database.SetAdd(AddCacheQualifier(entitySet, db), key, CommandFlags.FireAndForget);
                     }
 
                     _database.Set(key, new CacheEntry(value, entitySets, slidingExpiration, absoluteExpiration));
@@ -149,9 +149,9 @@ namespace EFCache.Redis
             }
         }
 
-        private RedisKey AddCacheQualifier(string entitySet, DbConnection cn)
+        private RedisKey AddCacheQualifier(string entitySet, DbInfo db)
         {
-            return string.Concat(_cacheIdentifier, ".", cn.Database, ".", entitySet);
+            return string.Concat(_cacheIdentifier, ".", db.DbName, ".", entitySet);
         }
 
         private static string HashKey(string key)
@@ -165,7 +165,7 @@ namespace EFCache.Redis
             }
         }
 
-        public void InvalidateSets(IEnumerable<string> entitySets, DbConnection cn)
+        public void InvalidateSets(IEnumerable<string> entitySets, DbInfo db)
         {
             // ReSharper disable once PossibleMultipleEnumeration - the guard clause should not enumerate, its just checking the reference is not null
             entitySets.GuardAgainstNull(nameof(entitySets));
@@ -180,7 +180,7 @@ namespace EFCache.Redis
                 {
                     // ReSharper disable once PossibleMultipleEnumeration - the guard clause should not enumerate, its just checking the reference is not null
                     foreach (var entitySet in entitySets) {
-                        var entitySetKey = AddCacheQualifier(entitySet, cn);
+                        var entitySetKey = AddCacheQualifier(entitySet, db);
                         var keys = _database.SetMembers(entitySetKey).Select(v => v.ToString());
                         itemsToInvalidate.UnionWith(keys);
                         _database.KeyDelete(entitySetKey, CommandFlags.FireAndForget);
@@ -194,12 +194,12 @@ namespace EFCache.Redis
 
                 foreach (var key in itemsToInvalidate)
                 {
-                    InvalidateItem(key, cn);
+                    InvalidateItem(key, db);
                 }
             }
         }
 
-        public void InvalidateItem(string key, DbConnection cn)
+        public void InvalidateItem(string key, DbInfo db)
         {
             key.GuardAgainstNullOrEmpty(nameof(key));
             
@@ -218,7 +218,7 @@ namespace EFCache.Redis
                     _database.KeyDelete(key, CommandFlags.FireAndForget);
 
                     foreach (var set in entry.EntitySets) {
-                        _database.SetRemove(AddCacheQualifier(set, cn), key, CommandFlags.FireAndForget);
+                        _database.SetRemove(AddCacheQualifier(set, db), key, CommandFlags.FireAndForget);
                     }
                 } 
                 catch (Exception e) 
