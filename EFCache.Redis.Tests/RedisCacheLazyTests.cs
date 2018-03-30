@@ -23,14 +23,14 @@ namespace EFCache.Redis.Tests
             var cache = new RedisCache(LazyConnection.Value);
             var item = new TestObject { Message = "OK" };
 
-            cache.PutItem("key", item, new string[0], TimeSpan.MaxValue, DateTimeOffset.MaxValue);
+            cache.PutItem("key", item, new string[0], TimeSpan.MaxValue, DateTimeOffset.MaxValue, null);
 
             object fromCache;
 
-            Assert.IsTrue(cache.GetItem("key", out fromCache));
+            Assert.IsTrue(cache.GetItem("key", out fromCache, null));
             Assert.AreEqual(item.Message, ((TestObject)fromCache).Message);
 
-            Assert.IsTrue(cache.GetItem("key", out fromCache));
+            Assert.IsTrue(cache.GetItem("key", out fromCache, null));
             Assert.AreEqual(item.Message, ((TestObject)fromCache).Message);
         }
     }

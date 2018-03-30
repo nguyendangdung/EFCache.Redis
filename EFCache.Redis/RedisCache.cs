@@ -1,6 +1,7 @@
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -66,7 +67,7 @@ namespace EFCache.Redis
             handler(this, redisCacheException);
         }
 
-        public bool GetItem(string key, out object value)
+        public bool GetItem(string key, out object value, DbConnection cn)
         {
             key.GuardAgainstNullOrEmpty(nameof(key));
             _database = _redis.GetDatabase(); //connect only if arguments are valid to optimize resources 
@@ -90,7 +91,7 @@ namespace EFCache.Redis
 
             if (EntryExpired(entry, now))
             {
-                InvalidateItem(key);
+                InvalidateItem(key, cn);
                 value = null;
             }
             else
@@ -118,7 +119,7 @@ namespace EFCache.Redis
 
         private static bool EntryExpired(CacheEntry entry, DateTimeOffset now) => entry.AbsoluteExpiration < now || (now - entry.LastAccess) > entry.SlidingExpiration;
 
-        public void PutItem(string key, object value, IEnumerable<string> dependentEntitySets, TimeSpan slidingExpiration, DateTimeOffset absoluteExpiration, DbInfo dbInfo)
+        public void PutItem(string key, object value, IEnumerable<string> dependentEntitySets, TimeSpan slidingExpiration, DateTimeOffset absoluteExpiration, DbConnection cn)
         {
             key.GuardAgainstNullOrEmpty(nameof(key));
             // ReSharper disable once PossibleMultipleEnumeration - the guard clause should not enumerate, its just checking the reference is not null
@@ -164,7 +165,7 @@ namespace EFCache.Redis
             }
         }
 
-        public void InvalidateSets(IEnumerable<string> entitySets)
+        public void InvalidateSets(IEnumerable<string> entitySets, DbConnection cn)
         {
             // ReSharper disable once PossibleMultipleEnumeration - the guard clause should not enumerate, its just checking the reference is not null
             entitySets.GuardAgainstNull(nameof(entitySets));
@@ -193,12 +194,12 @@ namespace EFCache.Redis
 
                 foreach (var key in itemsToInvalidate)
                 {
-                    InvalidateItem(key);
+                    InvalidateItem(key, cn);
                 }
             }
         }
 
-        public void InvalidateItem(string key)
+        public void InvalidateItem(string key, DbConnection cn)
         {
             key.GuardAgainstNullOrEmpty(nameof(key));
             
