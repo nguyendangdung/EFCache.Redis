@@ -43,7 +43,7 @@
 		{
 			build = 1;
 		}
-		year = DateTime.Now.Year;
+		year = DateTime.Now.Year + 1000;
 		month = DateTime.Now.Month;
 		day = DateTime.Now.Day;
 	}
