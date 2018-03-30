@@ -137,7 +137,7 @@ namespace EFCache.Redis
                 {
                     foreach (var entitySet in entitySets)
                     {
-                        _database.SetAdd(AddCacheQualifier(entitySet), key, CommandFlags.FireAndForget);
+                        _database.SetAdd(AddCacheQualifier(entitySet, cn), key, CommandFlags.FireAndForget);
                     }
 
                     _database.Set(key, new CacheEntry(value, entitySets, slidingExpiration, absoluteExpiration));
@@ -149,9 +149,9 @@ namespace EFCache.Redis
             }
         }
 
-        private RedisKey AddCacheQualifier(string entitySet)
+        private RedisKey AddCacheQualifier(string entitySet, DbConnection cn)
         {
-            return string.Concat(_cacheIdentifier, ".", entitySet);
+            return string.Concat(_cacheIdentifier, ".", cn.Database, ".", entitySet);
         }
 
         private static string HashKey(string key)
@@ -180,7 +180,7 @@ namespace EFCache.Redis
                 {
                     // ReSharper disable once PossibleMultipleEnumeration - the guard clause should not enumerate, its just checking the reference is not null
                     foreach (var entitySet in entitySets) {
-                        var entitySetKey = AddCacheQualifier(entitySet);
+                        var entitySetKey = AddCacheQualifier(entitySet, cn);
                         var keys = _database.SetMembers(entitySetKey).Select(v => v.ToString());
                         itemsToInvalidate.UnionWith(keys);
                         _database.KeyDelete(entitySetKey, CommandFlags.FireAndForget);
@@ -218,7 +218,7 @@ namespace EFCache.Redis
                     _database.KeyDelete(key, CommandFlags.FireAndForget);
 
                     foreach (var set in entry.EntitySets) {
-                        _database.SetRemove(AddCacheQualifier(set), key, CommandFlags.FireAndForget);
+                        _database.SetRemove(AddCacheQualifier(set, cn), key, CommandFlags.FireAndForget);
                     }
                 } 
                 catch (Exception e) 
